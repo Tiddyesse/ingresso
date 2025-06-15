@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Oggetto - Croce 4</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: black;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    #contenitore {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      height: 100vh;
+      aspect-ratio: 16/9;
+      background-color: black;
+      overflow: hidden;
+    }
+
+    #sfondo {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+
+    #croce4sprite {
+      position: absolute;
+      top: 29%;
+      left: 48%;
+      width: 15%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      cursor: pointer;
+    }
+
+    #inventario {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 10%;
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 0 10px;
+      z-index: 20;
+    }
+
+    .itemInventario {
+      height: 80%;
+      aspect-ratio: 1/1;
+      object-fit: contain;
+    }
+
+    #xclose {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 28px;
+      color: white;
+      background: rgba(0,0,0,0.6);
+      padding: 5px 10px;
+      cursor: pointer;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <div id="contenitore">
+    <img id="sfondo" src="assets/scenari/scenarioluceaperto.png" alt="Sfondo Croce 4">
+
+    <div id="inventario"></div>
+    <div id="xclose" onclick="chiudi()">X</div>
+  </div>
+
+  <script>
+    function chiudi() {
+      window.location.href = "stanza3.html";
+    }
+
+    function aggiornaInventario() {
+      const inv = JSON.parse(localStorage.getItem('inventario')) || [];
+      const invContainer = document.getElementById('inventario');
+      invContainer.innerHTML = '';
+      inv.forEach(src => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.className = 'itemInventario';
+        invContainer.appendChild(img);
+      });
+    }
+
+    function aggiungiCroce4() {
+      const inv = JSON.parse(localStorage.getItem('inventario')) || [];
+      const item = 'assets/indizi/croce4.png';
+      if (!inv.includes(item)) {
+        inv.push(item);
+        localStorage.setItem('inventario', JSON.stringify(inv));
+        aggiornaInventario();
+      }
+      const sprite = document.getElementById('croce4sprite');
+      if (sprite) sprite.remove();
+    }
+
+    window.onload = function() {
+      aggiornaInventario();
+      const inv = JSON.parse(localStorage.getItem('inventario')) || [];
+      if (!inv.includes('assets/indizi/croce4.png')) {
+        const sprite = document.createElement('img');
+        sprite.id = 'croce4sprite';
+        sprite.src = 'assets/oggetti/croce4sprite.png';
+        sprite.alt = 'Croce 4';
+        sprite.onclick = aggiungiCroce4;
+        document.getElementById('contenitore').appendChild(sprite);
+      }
+    };
+  </script>
+</body>
+</html>

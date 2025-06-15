@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Cassaforte - Escape Room</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: black;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    #contenitore {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      height: 100vh;
+      aspect-ratio: 16/9;
+      background-color: black;
+      overflow: hidden;
+    }
+
+    #sfondo {
+      position: absolute;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+
+    .slot {
+      position: absolute;
+      cursor: pointer;
+      z-index: 20;
+
+    }
+
+    #destra   { top: 38%; left: 59.7%; width: 9%;  height: 7%;  }
+    #sotto    { top: 45%; left: 58%;   width: 3.8%; height: 31%;  }
+    #sinistra { top: 38%; left: 51%;   width: 9%;  height: 7%;  }
+    #sopra    { top: 25%; left: 58%;   width: 3.8%; height: 13%; }
+
+    .croceInserita {
+      position: absolute;
+      z-index: 15;
+
+
+    }
+
+    #inventario {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%; height: 10%;
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 0 10px;
+      z-index: 20;
+    }
+
+    .itemInventario {
+      height: 80%; aspect-ratio: 1/1;
+      object-fit: contain;
+    }
+
+    #xclose {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 28px;
+      color: white;
+      background: rgba(0,0,0,0.6);
+      padding: 5px 10px;
+      cursor: pointer;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <div id="contenitore">
+    <img id="sfondo" src="assets/scenari/cassaforte.png" alt="Cassaforte">
+
+    <div id="destra" class="slot"></div>
+    <div id="sotto" class="slot"></div>
+    <div id="sinistra" class="slot"></div>
+    <div id="sopra" class="slot"></div>
+
+    <div id="xclose" onclick="window.location.href='stanza3.html'">X</div>
+    <div id="inventario"></div>
+  </div>
+
+<script>
+  const posizioniCroci = {
+    destra:   { top: '37.4%', left: '59.7%', width: '9%',   oggetto: 'croce destra.png', immagine: 'croceinseritadestra.png' },
+    sotto:    { top: '44.7%', left: '58%',   width: '3.52%',oggetto: 'indizio2.png',     immagine: 'croceinseritasotto.png' },
+    sinistra: { top: '38.3%', left: '51.0%', width: '10%',  oggetto: 'croce3.png',       immagine: 'croceinseritasinistra.png' },
+    sopra:    { top: '24.2%', left: '58.1%', width: '3.7%', oggetto: 'croce4.png',       immagine: 'croceinseritasopra.png' }
+  };
+
+  let inseriti = {};
+
+  function aggiornaInventario() {
+    const inventario = document.getElementById('inventario');
+    inventario.innerHTML = '';
+    const oggetti = JSON.parse(localStorage.getItem('inventario')) || [];
+    const crociInserite = JSON.parse(localStorage.getItem('crociInserite')) || {};
+    const oggettiDaEscludere = new Set();
+
+    for (const posizione in crociInserite) {
+      if (crociInserite[posizione]) {
+        const oggetto = 'assets/indizi/' + posizioniCroci[posizione].oggetto;
+        oggettiDaEscludere.add(oggetto);
+      }
+    }
+
+    oggetti.forEach(src => {
+      if (!oggettiDaEscludere.has(src)) {
+        const img = document.createElement('img');
+        img.src = src;
+        img.className = 'itemInventario';
+        inventario.appendChild(img);
+      }
+    });
+  }
+
+  function inserisci(nomeOggetto, posizione, immagine) {
+    const inv = JSON.parse(localStorage.getItem('inventario')) || [];
+    const src = 'assets/indizi/' + nomeOggetto;
+
+    if (inv.includes(src) && !inseriti[posizione]) {
+      inseriti[posizione] = true;
+      localStorage.setItem('crociInserite', JSON.stringify(inseriti));
+      mostraCroce(posizione, immagine);
+      aggiornaInventario();
+      controllaCassaforte();
+    } else if (inseriti[posizione]) {
+      controllaCassaforte();  // Permette accesso se già completato
+    }
+  }
+
+  function mostraCroce(posizione, immagine) {
+    const pos = posizioniCroci[posizione];
+    const img = document.createElement('img');
+    img.src = 'assets/oggetti/' + immagine;
+    img.className = 'croceInserita';
+    img.style.top = pos.top;
+    img.style.left = pos.left;
+    img.style.width = pos.width;
+    document.getElementById('contenitore').appendChild(img);
+  }
+
+  function controllaCassaforte() {
+    if (inseriti.destra && inseriti.sotto && inseriti.sinistra && inseriti.sopra) {
+      window.location.href = 'cassaforteaperta.html';
+    }
+  }
+
+  function setup() {
+    aggiornaInventario();
+    inseriti = JSON.parse(localStorage.getItem('crociInserite')) || {};
+
+    for (const posizione in posizioniCroci) {
+      const slot = document.getElementById(posizione);
+      const { oggetto, immagine } = posizioniCroci[posizione];
+
+      if (inseriti[posizione]) {
+        mostraCroce(posizione, immagine);
+      }
+
+      slot.onclick = () => inserisci(oggetto, posizione, immagine);
+    }
+  }
+
+  window.onload = setup;
+</script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Cassaforte Aperta - Escape Room</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: black;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    #contenitore {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      height: 100vh;
+      aspect-ratio: 16/9;
+      background-color: black;
+      overflow: hidden;
+    }
+
+    #sfondo {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+
+    #xclose {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 28px;
+      color: white;
+      background: rgba(0,0,0,0.6);
+      padding: 5px 10px;
+      cursor: pointer;
+      z-index: 100;
+    }
+
+    #inventario {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 10%;
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 0 10px;
+      z-index: 20;
+    }
+
+    .itemInventario {
+      height: 80%;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+    }
+
+     #chiave {
+      position: absolute;
+      top: 28.2%;
+      left: 52%;
+      width: 15%;
+      cursor: pointer;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <div id="contenitore">
+    <img id="sfondo" src="assets/scenari/cassaforteaperta.png" alt="Cassaforte Aperta">
+    
+    <div id="xclose" onclick="window.location.href='stanza3.html'">X</div>
+    <div id="inventario"></div>
+    
+    <img id="chiave" src="assets/oggetti/chiavefinalesprite.png" alt="Chiave" onclick="raccogliChiave()">
+  </div>
+
+  <script>
+    const chiaveIndizio = "assets/indizi/chiavefinale.png";
+
+    // Oggetti da nascondere nell'inventario in questa pagina
+    const crociDaEscludere = new Set([
+      "assets/indizi/croce destra.png",
+      "assets/indizi/indizio2.png",
+      "assets/indizi/croce3.png",
+      "assets/indizi/croce4.png"
+    ]);
+
+    function aggiornaInventario() {
+      const inventario = document.getElementById('inventario');
+      inventario.innerHTML = '';
+      const oggetti = JSON.parse(localStorage.getItem('inventario')) || [];
+      oggetti.forEach(src => {
+        if (!crociDaEscludere.has(src)) {
+          const img = document.createElement('img');
+          img.src = src;
+          img.className = 'itemInventario';
+          inventario.appendChild(img);
+        }
+      });
+    }
+
+    function raccogliChiave() {
+      const inv = JSON.parse(localStorage.getItem('inventario')) || [];
+      if (!inv.includes(chiaveIndizio)) {
+        inv.push(chiaveIndizio);
+        localStorage.setItem('inventario', JSON.stringify(inv));
+      }
+
+      const chiave = document.getElementById('chiave');
+      if (chiave) chiave.remove();
+      aggiornaInventario();
+    }
+
+    window.onload = () => {
+      const inv = JSON.parse(localStorage.getItem('inventario')) || [];
+      if (inv.includes(chiaveIndizio)) {
+        const chiave = document.getElementById('chiave');
+        if (chiave) chiave.remove();
+      }
+      aggiornaInventario();
+    };
+  </script>
+</body>
+</html>

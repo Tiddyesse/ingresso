@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stanza 1 - Escape Room</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: black;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    #contenitore {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      height: 100vh;
+      aspect-ratio: 16/9;
+      background: black;
+      overflow: hidden;
+    }
+
+    #sfondo {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+
+    .cliccabile {
+      position: absolute;
+      z-index: 5;
+      cursor: pointer;
+      border:none;
+    }
+
+    .rosso   { border-color: none; }
+    .verde   { border-color: none; }
+    .blu     { border-color: none; }
+    .giallo  { border-color: none; }
+    .viola   { border-color: none; }
+    .chiave  { border-color:none; }
+
+    #overlay, #overlayViola, #overlayGiallo {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+
+    #overlay img,
+    #overlayViola img,
+    #overlayGiallo img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+    }
+
+    .chiudiOverlay {
+      position: absolute;
+      top: 10px; right: 20px;
+      font-size: 28px;
+      color: white;
+      background: rgba(0,0,0,0.6);
+      padding: 5px 10px;
+      cursor: pointer;
+      z-index: 30;
+    }
+
+    .overlayDiv {
+      position: absolute;
+      z-index: 25;
+      cursor: pointer;
+      border: none;
+    }
+
+    .hidden { display: none; }
+
+    #inventario {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 10%;
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 0 10px;
+      z-index: 50;
+    }
+
+    .itemInventario {
+      height: 80%;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+    }
+
+    #frecciaDestra {
+      position: absolute;
+      top: 50%;
+      left: 10px;
+      transform: translateY(-50%);
+      font-size: 40px;
+      color: white;
+      background: rgba(0,0,0,0.5);
+      padding: 10px;
+      cursor: pointer;
+      z-index: 100;
+    }
+
+    #freccia2 {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      font-size: 40px;
+      color: white;
+      background: rgba(0,0,0,0.5);
+      padding: 10px;
+      cursor: pointer;
+      z-index: 100;
+    }
+
+    .chiave1 {
+      position: absolute;
+      left: 70.5%; top: 34%;
+      width: 2.6%; height: 5%;
+      transform: translateX(-50%);
+      border:none;
+      cursor: pointer;
+      z-index: 5;
+    }
+  </style>
+</head>
+<body>
+  <div id="contenitore">
+    <img id="sfondo" src="assets/sfondi/stanza1.png" alt="Sfondo">
+
+    <!-- Div cliccabili -->
+    <div class="cliccabile rosso" style="left:20%; top:56%; width:12%; height:24%;"
+         onclick="mostraOverlayScenario('assets/scenari/scenario1.png','scenario1')"></div>
+    <div class="cliccabile verde" style="left:36%; top:25%; width:28%; height:53%;"
+         onclick="controllaChiaveFinale()"></div>
+    <div class="cliccabile blu" style="left:68%; top:56%; width:12%; height:24%;"
+         onclick="mostraOverlayScenario('assets/scenari/scenario2.png','scenario2')"></div>
+
+    <!-- Nuovo div per chiave -->
+    <div class="cliccabile chiave1" onclick="vaiAChiave1()"></div>
+
+    <!-- Overlay principale -->
+    <div id="overlay">
+      <img id="overlayImg" src="" alt="Overlay">
+      <div class="chiudiOverlay" onclick="chiudiOverlay()">X</div>
+      <div id="extraViola" class="overlayDiv viola hidden"
+           style="left:50%; top:23%; width:14%; height:15%;" onclick="apriOverlayViola()"></div>
+      <div id="extraGiallo" class="overlayDiv giallo hidden"
+           style="left:28%; top:20%; width:30%; height:20%;" onclick="apriOverlayGiallo()"></div>
+    </div>
+
+    <!-- Overlay Viola -->
+    <div id="overlayViola">
+      <img src="assets/indizi/indizio1.png" alt="Overlay Viola">
+      <div class="chiudiOverlay" onclick="chiudiOverlayViola()">X</div>
+    </div>
+
+    <!-- Overlay Giallo -->
+    <div id="overlayGiallo">
+      <img id="overlayGialloImg" src="assets/scenari/scenario3.png" alt="Overlay Giallo">
+      <div class="chiudiOverlay" onclick="chiudiOverlayGiallo()">X</div>
+    </div>
+
+    <!-- Inventario -->
+    <div id="inventario"></div>
+
+    <!-- Navigazione -->
+    <div id="frecciaDestra" onclick="vaiAStanza2()">&#8592;</div>
+    <div id="freccia2" onclick="vaiAStanza3()">&#8594;</div>
+  </div>
+
+  <script>
+    const oggettoCroce1 = 'assets/indizi/indizio2.png';
+    const chiaveFinale = 'assets/indizi/chiavefinale.png';
+
+    function mostraOverlay(imgSrc) {
+      document.getElementById('overlayImg').src = imgSrc;
+      document.getElementById('overlay').style.display = 'flex';
+      document.getElementById('extraViola').classList.add('hidden');
+      document.getElementById('extraGiallo').classList.add('hidden');
+    }
+
+    function mostraOverlayScenario(imgSrc, scenario) {
+      mostraOverlay(imgSrc);
+      if (scenario === 'scenario1') {
+        document.getElementById('extraViola').classList.remove('hidden');
+      } else if (scenario === 'scenario2') {
+        document.getElementById('extraGiallo').classList.remove('hidden');
+      }
+    }
+
+    function chiudiOverlay() {
+      document.getElementById('overlay').style.display = 'none';
+      document.getElementById('extraViola').classList.add('hidden');
+      document.getElementById('extraGiallo').classList.add('hidden');
+    }
+
+    function apriOverlayViola() {
+      document.getElementById('overlayViola').style.display = 'flex';
+    }
+
+    function apriOverlayGiallo() {
+      document.getElementById('overlayGiallo').style.display = 'flex';
+    }
+
+    function chiudiOverlayViola() {
+      document.getElementById('overlayViola').style.display = 'none';
+    }
+
+    function chiudiOverlayGiallo() {
+      document.getElementById('overlayGiallo').style.display = 'none';
+    }
+
+    function raccogliCroce() {
+      let inventarioSalvato = JSON.parse(localStorage.getItem('inventario')) || [];
+      if (!inventarioSalvato.includes(oggettoCroce1)) {
+        inventarioSalvato.push(oggettoCroce1);
+        localStorage.setItem('inventario', JSON.stringify(inventarioSalvato));
+        const inv = document.getElementById('inventario');
+        const img = document.createElement('img');
+        img.src = oggettoCroce1;
+        img.className = 'itemInventario';
+        inv.appendChild(img);
+      }
+      document.getElementById('croce1')?.remove();
+    }
+
+    function vaiAStanza2() {
+      window.location.href = 'stanza2.html';
+    }
+
+    function vaiAStanza3() {
+      window.location.href = 'stanza3.html';
+    }
+
+    function vaiAChiave1() {
+      window.location.href = 'chiave1stanza1.html';
+    }
+
+    function controllaChiaveFinale() {
+      const oggetti = JSON.parse(localStorage.getItem('inventario')) || [];
+      if (oggetti.includes(chiaveFinale)) {
+        window.location.href = 'fine.html';
+      } else {
+        mostraOverlay('assets/oggetti/chiusa.png');
+      }
+    }
+
+    window.onload = function() {
+      const inventario = document.getElementById('inventario');
+      const oggetti = JSON.parse(localStorage.getItem('inventario')) || [];
+      oggetti.forEach(src => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.className = 'itemInventario';
+        inventario.appendChild(img);
+      });
+
+      if (!oggetti.includes(oggettoCroce1)) {
+        const croce1 = document.createElement('img');
+        croce1.id = 'croce1';
+        croce1.src = 'assets/oggetti/croce1.png';
+        croce1.style = 'position:absolute; top:7%; left:40%; width:7%; cursor:pointer; z-index:40;';
+        croce1.onclick = raccogliCroce;
+        document.getElementById('overlayGiallo').appendChild(croce1);
+      }
+    }
+  </script>
+</body>
+</html>

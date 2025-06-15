@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Luce - Escape Room</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: black;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    #contenitore {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      height: 100vh;
+      aspect-ratio: 16/9;
+      background-color: black;
+      overflow: hidden;
+    }
+
+    #sfondo {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+
+    #xback {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 28px;
+      color: white;
+      background: rgba(0,0,0,0.6);
+      padding: 5px 10px;
+      cursor: pointer;
+      z-index: 100;
+    }
+
+    #inventario {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 10%;
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 0 10px;
+      z-index: 50;
+    }
+
+    .itemInventario {
+      height: 80%;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+    }
+
+    #riga1, #riga2, #riga3 {
+      position: fixed;
+      display: flex;
+      gap: 0;
+      z-index: 10;
+    }
+
+    #riga1 {
+      top: 37.1%;
+      left: 9.3%;
+      width: 1850px;
+      height: 11.2%;
+    }
+
+    #riga2 {
+      top: 49.1%;
+      left: 22.9%;
+      width: 1230px;
+      height: 11.2%;
+    }
+
+    #riga3 {
+      top: 61.1%;
+      left: 29.7%;
+      width: 920px;
+      height: 11.2%;
+    }
+
+    .bottoni {
+      flex: 1;
+      aspect-ratio: 1 / 1;
+      position: relative;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .premuto-overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="contenitore">
+    <img id="sfondo" src="assets/scenari/scenarioluce.png" alt="Luce">
+
+    <div id="riga1"></div>
+    <div id="riga2"></div>
+    <div id="riga3"></div>
+
+    <div id="xback" onclick="tornaAStanza3()">X</div>
+    <div id="inventario"></div>
+  </div>
+
+  <script>
+    const attivi = new Set();
+
+    function tornaAStanza3() {
+      window.location.href = "stanza3.html";
+    }
+
+    function aggiornaInventario() {
+      const inventario = document.getElementById('inventario');
+      inventario.innerHTML = '';
+      const oggetti = JSON.parse(localStorage.getItem('inventario')) || [];
+      oggetti.forEach(src => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.className = 'itemInventario';
+        inventario.appendChild(img);
+      });
+    }
+
+    function creaBottoni() {
+      const riga1 = document.getElementById('riga1');
+      const riga2 = document.getElementById('riga2');
+      const riga3 = document.getElementById('riga3');
+      let id = 1;
+
+      for (let i = 0; i < 12; i++) {
+        creaBottone(riga1, id++);
+      }
+      for (let i = 0; i < 8; i++) {
+        creaBottone(riga2, id++);
+      }
+      for (let i = 0; i < 6; i++) {
+        creaBottone(riga3, id++);
+      }
+    }
+
+    function creaBottone(riga, id) {
+      const btn = document.createElement('div');
+      btn.className = 'bottoni';
+      btn.id = id;
+      btn.onclick = () => toggleBottone(btn, id);
+      riga.appendChild(btn);
+    }
+
+    function toggleBottone(btn, id) {
+      if (attivi.has(id)) {
+        attivi.delete(id);
+        btn.innerHTML = '';
+      } else {
+        attivi.add(id);
+        const img = document.createElement('img');
+        img.src = 'assets/oggetti/premuto.png';
+        img.className = 'premuto-overlay';
+        btn.appendChild(img);
+      }
+      controllaSoluzione();
+    }
+
+    function controllaSoluzione() {
+      const idsAttesi = [4, 9, 15];
+      const premuti = Array.from(attivi).sort((a, b) => a - b);
+      if (premuti.length === 3 &&
+          premuti[0] === idsAttesi[0] &&
+          premuti[1] === idsAttesi[1] &&
+          premuti[2] === idsAttesi[2]) {
+        window.location.href = 'croce4.html';
+      }
+    }
+
+    window.onload = function () {
+      aggiornaInventario();
+      creaBottoni();
+    };
+  </script>
+</body>
+</html>

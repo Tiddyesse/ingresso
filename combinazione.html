@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Combinazione</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background-color: black;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    #contenitore {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      height: 100vh;
+      aspect-ratio: 16/9;
+      background: black;
+      overflow: hidden;
+    }
+
+    #sfondo {
+      position: absolute;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+
+    #inventario {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%;
+      height: 10%;
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 0 10px;
+      z-index: 50;
+    }
+
+    .itemInventario {
+      height: 80%;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+    }
+
+    .numeroContainer {
+      position: absolute;
+      top: 30%;
+      width: 10%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .freccia {
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .numero {
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    #n1 { left: 21.2%; }
+    #n2 { left: 41%; }
+    #n3 { left: 61%; }
+
+    #chiudi {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 28px;
+      color: white;
+      background: rgba(0,0,0,0.6);
+      padding: 5px 10px;
+      cursor: pointer;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <div id="contenitore">
+    <img id="sfondo" src="assets/scenari/scenarioCombinazione.png" alt="Combinazione">
+
+    <div id="n1" class="numeroContainer">
+      <img class="freccia" src="assets/scenari/sopra.png" onclick="cambiaNumero(0, 1)">
+      <img id="numero0" class="numero" src="assets/scenari/0.png">
+      <img class="freccia" src="assets/scenari/sotto.png" onclick="cambiaNumero(0, -1)">
+    </div>
+
+    <div id="n2" class="numeroContainer">
+      <img class="freccia" src="assets/scenari/sopra.png" onclick="cambiaNumero(1, 1)">
+      <img id="numero1" class="numero" src="assets/scenari/0.png">
+      <img class="freccia" src="assets/scenari/sotto.png" onclick="cambiaNumero(1, -1)">
+    </div>
+
+    <div id="n3" class="numeroContainer">
+      <img class="freccia" src="assets/scenari/sopra.png" onclick="cambiaNumero(2, 1)">
+      <img id="numero2" class="numero" src="assets/scenari/0.png">
+      <img class="freccia" src="assets/scenari/sotto.png" onclick="cambiaNumero(2, -1)">
+    </div>
+
+    <div id="chiudi" onclick="tornaAStanza2()">X</div>
+    <div id="inventario"></div>
+  </div>
+
+  <script>
+    const numeri = [0, 0, 0];
+
+    function cambiaNumero(indice, delta) {
+      numeri[indice] = (numeri[indice] + delta + 10) % 10;
+      document.getElementById("numero" + indice).src = `assets/scenari/${numeri[indice]}.png`;
+
+      // Controllo combinazione corretta
+      if (numeri[0] === 6 && numeri[1] === 6 && numeri[2] === 6) {
+        setTimeout(() => {
+          window.location.href = "croce2.html";
+        }, 300);
+      }
+    }
+
+    function tornaAStanza2() {
+      window.location.href = "stanza2.html";
+    }
+
+    window.onload = function() {
+      const inventario = document.getElementById('inventario');
+      const items = JSON.parse(localStorage.getItem('inventario')) || [];
+      items.forEach(src => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.className = 'itemInventario';
+        inventario.appendChild(img);
+      });
+    }
+  </script>
+</body>
+</html>

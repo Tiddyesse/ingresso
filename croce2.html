@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Oggetto Croce 2</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background-color: black;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    #contenitore {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      height: 100vh;
+      aspect-ratio: 16/9;
+      background: black;
+      overflow: hidden;
+    }
+
+    #sfondo {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+
+    #croce2 {
+      position: absolute;
+      top: 65%;
+      left: 30%;
+      width: 24%;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    #inventario {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 10%;
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 0 10px;
+      z-index: 50;
+    }
+
+    .itemInventario {
+      height: 80%;
+      aspect-ratio: 1 / 1;
+      object-fit: contain;
+    }
+
+    #chiudi {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 28px;
+      color: white;
+      background: rgba(0,0,0,0.6);
+      padding: 5px 10px;
+      cursor: pointer;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <div id="contenitore">
+    <img id="sfondo" src="assets/scenari/croce2sfondo.png" alt="Sfondo Croce 2">
+    <div id="chiudi" onclick="tornaAStanza2()">X</div>
+    <div id="inventario"></div>
+  </div>
+
+  <script>
+    const oggettoSrc = 'assets/indizi/croce destra.png';
+
+    function raccogliCroce2() {
+      const inventario = document.getElementById('inventario');
+      const nuovaImg = document.createElement('img');
+      nuovaImg.src = oggettoSrc;
+      nuovaImg.className = 'itemInventario';
+      inventario.appendChild(nuovaImg);
+
+      const oggetti = JSON.parse(localStorage.getItem('inventario')) || [];
+      if (!oggetti.includes(oggettoSrc)) {
+        oggetti.push(oggettoSrc);
+        localStorage.setItem('inventario', JSON.stringify(oggetti));
+      }
+
+      document.getElementById('croce2').remove();
+    }
+
+    function tornaAStanza2() {
+      window.location.href = "stanza2.html";
+    }
+
+    window.onload = function() {
+      const inventario = document.getElementById('inventario');
+      const oggetti = JSON.parse(localStorage.getItem('inventario')) || [];
+
+      oggetti.forEach(src => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.className = 'itemInventario';
+        inventario.appendChild(img);
+      });
+
+      if (!oggetti.includes(oggettoSrc)) {
+        const croce = document.createElement('img');
+        croce.id = 'croce2';
+        croce.src = 'assets/oggetti/croce2.png';
+        croce.alt = 'Croce 2';
+        croce.onclick = raccogliCroce2;
+        document.getElementById('contenitore').appendChild(croce);
+      }
+    }
+  </script>
+</body>
+</html>

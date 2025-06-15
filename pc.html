@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Verità</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background-color: black;
+      overflow: hidden;
+      font-family:'Courier New', Courier, monospace !important;
+    }
+    #contenitore {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      height: 100vh;
+      aspect-ratio: 16/9;
+      background-color: black;
+      overflow: hidden;
+      font-family:'Courier New', Courier, monospace !important;
+    }
+    #sfondo {
+      position: absolute;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+    #chiudi {
+      position: absolute;
+      top: 10px; right: 20px;
+      font-size: 28px;
+      color: white;
+      background: rgba(0,0,0,0.6);
+      padding: 5px 10px;
+      cursor: pointer;
+      z-index: 50;
+    }
+    #wrapper {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60%;
+      text-align: center;
+      z-index: 10;
+    }
+    #inputFrase {
+      width: 100%;
+      padding: 1em;
+      font-size: 1.2em;
+      box-sizing: border-box;
+      text-align: center;
+      font-family:'Courier New', Courier, monospace !important;
+    }
+    #btnVerifica {
+      margin-top: 1em;
+      padding: 0.5em 1em;
+      font-size: 1em;
+      cursor: pointer;
+      font-family:'Courier New', Courier, monospace !important;
+    }
+  </style>
+</head>
+<body>
+  <div id="contenitore">
+    <img id="sfondo" src="assets/scenari/sfondopc.png" alt="Verità">
+    <div id="chiudi" onclick="tornaAStanza3()">X</div>
+    <div id="wrapper">
+      <input id="inputFrase" type="text" placeholder= '"######### #:##" = "..."'>
+      <button id="btnVerifica" onclick="verificaFrase()">Invia</button>
+    </div>
+  </div>
+  <script>
+    function normalizeText(str) {
+      return str
+        .normalize('NFD').replace(/\p{Diacritic}/gu, '')  // rimuove accenti
+        .toLowerCase()
+        .replace(/[.,!?;:]/g, '')
+        .trim();
+    }
+
+    function verificaFrase() {
+      const input = document.getElementById('inputFrase').value;
+      const norm = normalizeText(input);
+      const target = "conoscerete la verita e la verita vi fara liberi";
+      if (norm === target) {
+        localStorage.setItem('veritaOK', 'true');
+        window.location.href = 'stanza3.html';
+      } else {
+        alert('ERRORE');
+      }
+    }
+
+    function tornaAStanza3() {
+      window.location.href = 'stanza3.html';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Stanza 3 - Escape Room</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: black;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    #contenitore {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      height: 100vh;
+      aspect-ratio: 16/9;
+      background-color: black;
+      overflow: hidden;
+    }
+
+    #sfondo {
+      position: absolute;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+
+    .cliccabile {
+      position: absolute;
+      cursor: pointer;
+      z-index: 5;
+      border: none;
+    }
+
+    #pc { left: 28%; top: 46%; width: 10%; height: 20%; }
+    #vista { left: 19.7%; top: 32%; width: 4.8%; height: 20%; }
+    #cassaforte { left: 68%; top: 7%; width: 12%; height: 37%; }
+    #luce { left: 84%; top: 78%; width: 10%; height: 7%; }
+
+    #overlayVista {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+
+    #overlayVista img {
+      max-width: 90%; max-height: 90%;
+      object-fit: contain;
+    }
+
+    .chiudiOverlay {
+      font-family: sans-serif;
+      position: absolute;
+      top: 10px; right: 20px;
+      font-size: 28px;
+      color: white;
+      background: rgba(0,0,0,0.6);
+      padding: 5px 10px;
+      cursor: pointer;
+      z-index: 15;
+    }
+
+    #inventario {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%; height: 10%;
+      background: rgba(255,255,255,0.05);
+      display: flex; gap: 10px;
+      align-items: center; padding: 0 10px;
+      z-index: 20;
+    }
+
+    .itemInventario {
+      height: 80%; aspect-ratio:1/1; object-fit:contain;
+    }
+
+    #bucopc {
+      position: absolute;
+      top: 57.5%; left: 30.8%;
+      width: 17%;
+      transform: translate(-50%, -50%);
+      z-index: 8;
+    }
+
+    #croce3sprite {
+      position: absolute;
+      top: 60.8%; left: 30%;
+      width: 2.5%;
+      cursor: pointer;
+      z-index: 9;
+    }
+
+    #luceImg {
+      position: absolute;
+      top: 19.6%;
+      left: 10.1%;
+      width: 22%;
+      height: auto;
+      object-fit: cover;
+      z-index: 2;
+      display: none;
+    }
+
+    #frecciaDestra {
+      position: absolute;
+      top: 50%;
+      left: 10px;
+      transform: translateY(-50%);
+      font-size: 40px;
+      color: white;
+      background: rgba(0,0,0,0.5);
+      padding: 10px;
+      cursor: pointer;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+  <div id="contenitore">
+    <img id="sfondo" src="assets/scenari/stanza3.png" alt="Stanza 3">
+
+    <div id="pc" class="cliccabile" onclick="apriPC()"></div>
+    <div id="vista" class="cliccabile" onclick="apriVista()"></div>
+    <div id="cassaforte" class="cliccabile" onclick="window.location.href='cassaforte.html'"></div>
+    <div id="luce" class="cliccabile" onclick="window.location.href='luce.html'"></div>
+
+    <img id="luceImg" src="assets/oggetti/luce.png" alt="Luce Scoperta">
+
+    <div id="inventario"></div>
+    <div id="frecciaDestra" onclick="vaiAIndex()">&#8592;</div>
+  </div>
+
+  <script>
+    function vaiAIndex() {
+      window.location.href = "index.html";
+    }
+
+    function apriPC() {
+      window.location.href = 'pc.html';
+    }
+
+    function apriVista() {
+      const luce = document.getElementById('luceImg');
+      if (luce.style.display !== 'block') {
+        luce.style.display = 'block';
+      }
+    }
+
+    function raccogliCroce3() {
+      const inv = JSON.parse(localStorage.getItem('inventario')) || [];
+      const src = 'assets/indizi/croce3.png';
+      if (!inv.includes(src)) {
+        inv.push(src);
+        localStorage.setItem('inventario', JSON.stringify(inv));
+        const img = document.createElement('img');
+        img.src = src;
+        img.className = 'itemInventario';
+        document.getElementById('inventario').appendChild(img);
+      }
+      const sprite = document.getElementById('croce3sprite');
+      if (sprite) sprite.remove();
+    }
+
+    window.onload = function() {
+      const invContainer = document.getElementById('inventario');
+      const inv = JSON.parse(localStorage.getItem('inventario')) || [];
+
+      // Carica oggetti inventario visivamente
+      inv.forEach(src => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.className = 'itemInventario';
+        invContainer.appendChild(img);
+      });
+
+      // Se verità OK, aggiungi bucopc e croce solo se croce3 NON è già in inventario
+      if (localStorage.getItem('veritaOK') === 'true') {
+        const buco = document.createElement('img');
+        buco.id = 'bucopc';
+        buco.src = 'assets/oggetti/bucopc.png';
+        buco.alt = 'Buco PC';
+        document.getElementById('contenitore').appendChild(buco);
+
+        const crocePresente = inv.includes('assets/indizi/croce3.png');
+        if (!crocePresente) {
+          const sprite = document.createElement('img');
+          sprite.id = 'croce3sprite';
+          sprite.src = 'assets/oggetti/croce3sprite.png';
+          sprite.alt = 'Sprite Croce 3';
+          sprite.onclick = raccogliCroce3;
+          document.getElementById('contenitore').appendChild(sprite);
+        }
+      }
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Chiave 1 - Escape Room</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      background: black;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    #contenitore {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      height: 100vh;
+      aspect-ratio: 16/9;
+      background: black;
+      overflow: hidden;
+    }
+
+    #sfondo {
+      position: absolute;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: 0;
+    }
+
+    .cliccabile {
+      position: absolute;
+      z-index: 5;
+      cursor: pointer;
+      border: none;
+    }
+
+    /* Specific clickable div */
+    #divAperta {
+      left: 33%; top: 23%;
+      width: 26%; height: 50%;
+      border-color: none;
+    }
+
+    #overlay {
+      position: absolute;
+      top:0; left:0;
+      width:100%; height:100%;
+      background: rgba(0,0,0,0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+
+    #overlaySfondo {
+      position: absolute;
+      width:100%; height:100%;
+      object-fit: cover;
+      z-index: 10;
+    }
+
+    #chiudiOverlay {
+      position: absolute;
+      top: 10px; right: 20px;
+      font-size: 28px;
+      color: white;
+      background: rgba(0,0,0,0.6);
+      padding: 5px 10px;
+      cursor: pointer;
+      z-index: 20;
+    }
+
+    #spriteChiave {
+      position: absolute;
+      top: 24%; left: 42%;
+      width: 8%;
+      cursor: pointer;
+      z-index: 20;
+    }
+
+    #inventario {
+      position: absolute;
+      bottom: 0; left:0;
+      width:100%; height:10%;
+      background: rgba(255,255,255,0.05);
+      display:flex; gap:10px;
+      align-items:center; padding:0 10px;
+      z-index: 30;
+    }
+
+    .itemInventario {
+      height:80%; aspect-ratio:1/1; object-fit:contain;
+    }
+
+    #torna {
+      position: absolute;
+      top: 10px; right: 20px;
+      font-size: 28px;
+      color: white;
+      background: rgba(0,0,0,0.6);
+      padding: 5px 10px;
+      cursor: pointer;
+      z-index: 30;
+    }
+  </style>
+</head>
+<body>
+  <div id="contenitore">
+    <img id="sfondo" src="assets/scenari/chiave1sfondo.png" alt="Sfondo Chiave1">
+
+    <div id="divAperta" class="cliccabile" onclick="apriOverlay()"></div>
+
+    <div id="overlay">
+      <img id="overlaySfondo" src="assets/scenari/chiave1sfondo2.png" alt="Overlay Chiave1">
+      <div id="chiudiOverlay" onclick="chiudiOverlay()">X</div>
+      <img id="spriteChiave" src="assets/oggetti/chiave1sprite.png" alt="Sprite Chiave1" onclick="raccogliChiave1()">
+    </div>
+
+    <div id="inventario"></div>
+    <div id="torna" onclick="tornaStanza1()">X</div>
+  </div>
+
+  <script>
+    const keySrc = 'assets/oggetti/chiave1.png';
+    // Apri overlay con immagine di sfondo 2
+    function apriOverlay() {
+      // Mostra overlay solo se non hai già la chiave1
+      const inv = JSON.parse(localStorage.getItem('inventario'))||[];
+      if (!inv.includes(keySrc)) {
+        document.getElementById('overlay').style.display = 'flex';
+      }
+    }
+
+    function chiudiOverlay() {
+      document.getElementById('overlay').style.display = 'none';
+    }
+
+    function raccogliChiave1() {
+      const inv = JSON.parse(localStorage.getItem('inventario'))||[];
+      if (!inv.includes(keySrc)) {
+        inv.push(keySrc);
+        localStorage.setItem('inventario', JSON.stringify(inv));
+        // Aggiungi sprite nell'inventario
+        const inven = document.getElementById('inventario');
+        const img = document.createElement('img'); img.src = keySrc; img.className='itemInventario';
+        inven.appendChild(img);
+      }
+      chiudiOverlay();
+    }
+
+    function tornaStanza1() {
+      window.location.href = 'index.html';
+    }
+
+    window.onload = function() {
+      // Carica inventario
+      const inven = document.getElementById('inventario');
+      const inv = JSON.parse(localStorage.getItem('inventario'))||[];
+      inv.forEach(src=>{
+        const img=document.createElement('img'); img.src=src; img.className='itemInventario'; inven.appendChild(img);
+      });
+    }
+  </script>
+</body>
+</html>
