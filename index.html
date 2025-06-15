@@ -258,7 +258,7 @@
     function controllaChiaveFinale() {
       const oggetti = JSON.parse(localStorage.getItem('inventario')) || [];
       if (oggetti.includes(chiaveFinale)) {
-        window.location.href = 'fine.html';
+        window.location.href = 'https://tiddyesse.github.io/messaggiofinale/';
       } else {
         mostraOverlay('assets/oggetti/chiusa.png');
       }
